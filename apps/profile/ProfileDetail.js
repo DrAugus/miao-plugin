@@ -125,7 +125,7 @@ let ProfileDetail = {
     let selfUser = await MysApi.initUser(e)
 
     if (!selfUser) {
-      e.reply('尚未绑定UID')
+      e.reply(['尚未绑定UID', segment.button([{ text: "绑定UID", input: "#绑定uid" }])])
       return true
     }
 
@@ -243,8 +243,21 @@ let ProfileDetail = {
       wCfg,
       changeProfile: e._profileMsg
     }
+    const button = segment.button([
+      { text: `更新面板`, callback: `#更新面板${uid}` },
+      { text: `${char.name}面板`, callback: `#${char.name}面板${uid}` },
+    ],[
+      { text: `${char.name}伤害`, callback: `#${char.name}伤害${uid}` },
+      { text: `${char.name}圣遗物`, callback: `#${char.name}圣遗物${uid}` },
+    ],[
+      { text: `${char.name}图鉴`, callback: `#${char.name}图鉴` },
+      { text: `${char.name}攻略`, callback: `#${char.name}攻略` },
+    ],[
+      { text: `${char.name}命座`, callback: `#${char.name}命座` },
+      { text: `${char.name}天赋`, callback: `#${char.name}天赋` },
+    ])
     // 渲染图像
-    let msgRes = await Common.render('character/profile-detail', renderData, { e, scale: 1.6, retMsgId: true })
+    const msgRes = await e.reply([await Common.render('character/profile-detail', renderData, { e, scale: 1.6, retType: "base64" }), button])
     if (msgRes) {
       // 如果消息发送成功，就将message_id和图片路径存起来，3小时过期
       const message_id = [e.message_id]

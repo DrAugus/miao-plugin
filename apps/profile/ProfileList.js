@@ -12,7 +12,7 @@ const ProfileList = {
   async refresh (e) {
     let uid = await getTargetUid(e)
     if (!uid) {
-      e._replyNeedUid || e.reply('请先发送【#绑定+你的UID】来绑定查询目标\n星铁请使用【#星铁绑定+UID】')
+      e._replyNeedUid || e.reply(['请先发送【#绑定+你的UID】来绑定查询目标\n星铁请使用【#星铁绑定+UID】', segment.button([{ text: "绑定UID", input: "#绑定uid" }])])
       return true
     }
 
@@ -21,7 +21,7 @@ const ProfileList = {
     await player.refreshProfile(2)
 
     if (!player?._update?.length) {
-      e._isReplyed || e.reply('获取角色面板数据失败，请确认角色已在游戏内橱窗展示，并开放了查看详情。设置完毕后请5分钟后再进行请求~')
+      e._isReplyed || e.reply(['获取角色面板数据失败，请确认角色已在游戏内橱窗展示，并开放了查看详情。设置完毕后请5分钟后再进行请求~', segment.button([{ text: "更新面板", callback: `#更新面板${uid}` }])])
       e._isReplyed = true
     } else {
       let ret = {}
@@ -32,7 +32,7 @@ const ProfileList = {
         }
       })
       if (lodash.isEmpty(ret)) {
-        e._isReplyed || e.reply('获取角色面板数据失败，未能请求到角色数据。请确认角色已在游戏内橱窗展示，并开放了查看详情。设置完毕后请5分钟后再进行请求~')
+        e._isReplyed || e.reply(['获取角色面板数据失败，未能请求到角色数据。请确认角色已在游戏内橱窗展示，并开放了查看详情。设置完毕后请5分钟后再进行请求~', segment.button([{ text: "更新面板", callback: `#更新面板${uid}` }])])
         e._isReplyed = true
       } else {
         e.newChar = ret
@@ -51,7 +51,7 @@ const ProfileList = {
   async render (e) {
     let uid = await getTargetUid(e)
     if (!uid) {
-      e._replyNeedUid || e.reply('请先发送【#绑定+你的UID】来绑定查询目标\n星铁请使用【#星铁绑定+UID】')
+      e._replyNeedUid || e.reply(['请先发送【#绑定+你的UID】来绑定查询目标\n星铁请使用【#星铁绑定+UID】', segment.button([{ text: "绑定UID", input: "#绑定uid" }])])
       return true
     }
 
@@ -86,7 +86,7 @@ const ProfileList = {
       await player.refresh({ profile: true })
     }
     if (!player.hasProfile) {
-      e.reply(`本地暂无uid${uid}[${player.game}]的面板数据...`)
+      e.reply([`本地暂无uid${uid}[${player.game}]的面板数据...`, segment.button([{ text: "更新面板", callback: `#更新面板${uid}` }])])
       return true
     }
     let profiles = player.getProfiles()
@@ -129,7 +129,15 @@ const ProfileList = {
 
     player.save()
     // 渲染图像
-    return await Common.render('character/profile-list', {
+    const button = [[]]
+    for (const name in newChar) {
+      const array = button[button.length-1]
+      array.push({ text: `${name}面板`, callback: `#${name}面板${uid}` })
+      if (array.length > 1)
+        button.push([])
+    }
+    if (!button[0][0]) button[0][0] = { text: "更新面板", callback: `#更新面板${uid}` }
+    return e.reply([await Common.render('character/profile-list', {
       save_id: uid,
       uid,
       chars,
@@ -141,7 +149,7 @@ const ProfileList = {
       allowRank: rank && rank.allowRank,
       rankCfg,
       elem: player.isGs ? 'hydro' : 'sr'
-    }, { e, scale: 1.6 })
+    }, { e, scale: 1.6, retType: "base64" }), segment.button(...button)])
   },
 
   /**
@@ -164,7 +172,7 @@ const ProfileList = {
     }
 
     if (!targetUid) {
-      e.reply(`你确认要删除面板数据吗？ 请回复 #删除面板${uid} 以删除面板数据`)
+      e.reply([`你确认要删除面板数据吗？ 请回复 #删除面板${uid} 以删除面板数据`, segment.button([{ text: "删除面板", callback: `#删除面板${uid}` }])])
       return true
     }
 

@@ -28,7 +28,7 @@ const _getTargetUid = async function (e) {
     }
     uid = user.uid
     if ((!uid || !uidReg.test(uid)) && !e._replyNeedUid) {
-      e.reply('请先发送【#绑定+你的UID】来绑定查询目标\n星铁请使用【#星铁绑定+UID】')
+      e.reply(['请先发送【#绑定+你的UID】来绑定查询目标\n星铁请使用【#星铁绑定+UID】', segment.button([{ text: "绑定UID", input: "#绑定uid" }])])
       e._replyNeedUid = true
       return false
     }
@@ -61,7 +61,7 @@ export async function getProfileRefresh (e, avatar) {
   }
   if (!profile || !profile.hasData) {
     if (!e._isReplyed) {
-      e.reply(`请确认${char.name}已展示在【游戏内】的角色展柜中，并打开了“显示角色详情”。然后请使用 #更新面板\n命令来获取${char.name}的面板详情`)
+      e.reply([`请确认${char.name}已展示在【游戏内】的角色展柜中，并打开了“显示角色详情”。然后请使用 #更新面板\n命令来获取${char.name}的面板详情`, segment.button([{ text: "更新面板", callback: `#更新面板${player.uid}` }])])
     }
     return false
   }
